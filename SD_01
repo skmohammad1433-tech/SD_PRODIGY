@@ -1,0 +1,35 @@
+def convert_temperature(value, unit):
+    if unit.lower() == 'c':
+        fahrenheit = (value * 9/5) + 32
+        kelvin = value + 273.15
+        return fahrenheit, kelvin
+    elif unit.lower() == 'f':
+        celsius = (value - 32) * 5/9
+        kelvin = celsius + 273.15
+        return celsius, kelvin
+    elif unit.lower() == 'k':
+        celsius = value - 273.15
+        fahrenheit = (celsius * 9/5) + 32
+        return celsius, fahrenheit
+    else:
+        return None, None
+
+def main():
+    value = float(input("Enter the temperature value: "))
+    unit = input("Enter the unit (C for Celsius, F for Fahrenheit, K for Kelvin): ")
+
+    if unit.lower() not in ['c', 'f', 'k']:
+        print("Invalid unit. Please enter C, F, or K.")
+        return
+
+    converted1, converted2 = convert_temperature(value, unit)
+
+    if unit.lower() == 'c':
+        print(f"{value}°C is equivalent to {converted1:.2f}°F and {converted2:.2f}K.")
+    elif unit.lower() == 'f':
+        print(f"{value}°F is equivalent to {converted1:.2f}°C and {converted2:.2f}K.")
+    elif unit.lower() == 'k':
+        print(f"{value}K is equivalent to {converted1:.2f}°C and {converted2:.2f}°F.")
+
+if __name__ == "__main__":
+    main()
