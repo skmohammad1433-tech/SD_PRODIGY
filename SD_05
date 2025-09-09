@@ -1,0 +1,58 @@
+import requests
+from bs4 import BeautifulSoup
+import csv
+
+BASE_URL = "http://books.toscrape.com/catalogue/page-{}.html"
+
+def get_rating_class(rating_str):
+    # Map string ratings to numeric
+    ratings = {
+        'One': 1,
+        'Two': 2,
+        'Three': 3,
+        'Four': 4,
+        'Five': 5
+    }
+    return ratings.get(rating_str, 0)
+
+def scrape_books(pages=1, output_file='books.csv'):
+    books = []
+
+    for page_num in range(1, pages + 1):
+        url = BASE_URL.format(page_num)
+        print(f"Scraping page {page_num}: {url}")
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            print(f"Failed to retrieve page {page_num}")
+            continue
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+        articles = soup.find_all('article', class_='product_pod')
+
+        for article in articles:
+            title = article.h3.a['title']
+            price = article.find('p', class_='price_color').text.strip().replace('£', '')
+            rating_class = article.p['class'][1]  # e.g., 'Three'
+            rating = get_rating_class(rating_class)
+
+            books.append({
+                'Title': title,
+                'Price (£)': price,
+                'Rating (1-5)': rating
+            })
+
+    # Write to CSV
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Title', 'Price (£)', 'Rating (1-5)']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for book in books:
+            writer.writerow(book)
+
+    print(f"\n✅ Data saved to {output_file} ({len(books)} books)")
+
+# Example usage: Scrape first 5 pages
+if _name_ == '_main_':
+    scrape_books(pages=5)
